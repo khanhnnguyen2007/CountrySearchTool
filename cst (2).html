@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Country Character Converter</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    body {
+      margin: 0;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 28px;
+      height: 100vh;
+      overflow: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #475569 transparent;
+    }
+
+    *::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 999px;
+      border: 2px solid #0f172a;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+
+    *::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    .box {
+      max-width: 1120px;
+      height: calc(100vh - 56px);
+      margin: auto;
+      background: #1f2937;
+      padding: 20px;
+      border-radius: 14px;
+      border: 1px solid #374151;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #374151;
+      padding-bottom: 12px;
+      flex: 0 0 auto;
+    }
+
+    .tabBtn {
+      padding: 10px 16px;
+      border: 1px solid #4b5563;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .tabBtn:hover {
+      background: #1e293b;
+    }
+
+    .tabBtn.active {
+      background: #e5e7eb;
+      color: #111827;
+      border-color: #cbd5e1;
+    }
+
+    .tabPanel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .tabPanel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 6px;
+      font-size: 26px;
+    }
+
+    .hint {
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+      flex: 0 0 auto;
+    }
+
+    input, select {
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      padding: 10px 11px;
+      font-size: 16px;
+      width: 110px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 14px;
+      font-size: 15px;
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #1e293b;
+    }
+
+    button.switchOn {
+      background: #e5e7eb;
+      color: #111827;
+      border-color: #cbd5e1;
+    }
+
+    .mergedToggle {
+      display: inline-flex;
+      border: 1px solid #4b5563;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0f172a;
+    }
+
+    .segmentBtn {
+      border: 0;
+      border-radius: 0;
+      padding: 10px 12px;
+      background: transparent;
+      color: #e5e7eb;
+    }
+
+    .segmentBtn + .segmentBtn {
+      border-left: 1px solid #4b5563;
+    }
+
+    .segmentBtn:hover {
+      background: #1e293b;
+    }
+
+    .segmentBtn.switchOn {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .section {
+      background: #0f172a;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .section h2 {
+      flex: 0 0 auto;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .output {
+      margin: 0;
+      font-size: 15.4px;
+      line-height: 1.55;
+      color: #e5e7eb;
+      overflow: auto;
+      white-space: nowrap;
+      min-height: 0;
+      padding-right: 12px;
+      scrollbar-gutter: stable;
+    }
+
+    .patternGroup {
+      width: max-content;
+      margin-bottom: 4px;
+    }
+
+    .patternHeader {
+      display: grid;
+      grid-template-columns: 22px max-content 3ch;
+      column-gap: 10px;
+      align-items: center;
+      white-space: nowrap;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    .dropBtn {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border-radius: 4px;
+      border: 1px solid #111827;
+      color: #111827;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .dropBtn:hover {
+      filter: brightness(1.15);
+    }
+
+    .converted {
+      letter-spacing: 0.08em;
+      white-space: pre;
+    }
+
+    .countNum {
+      text-align: right;
+      opacity: 0.95;
+    }
+
+    .matches {
+      padding-left: 42px;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    .matches.hidden {
+      display: none;
+    }
+
+    .matchItem {
+      white-space: nowrap;
+    }
+
+    #tooltip {
+      position: fixed;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.04s ease;
+      z-index: 999999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    #tooltip.visible {
+      opacity: 1;
+    }
+
+    .searchShell {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .searchInner {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1;
+    }
+
+    .searchInputWrap {
+      position: relative;
+      width: 100%;
+      flex: 0 0 auto;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 16px 58px 16px 16px;
+      font-size: 28px;
+      text-align: center;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+      letter-spacing: 0.18em;
+    }
+
+    #charCount {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: #94a3b8;
+      letter-spacing: 0;
+      pointer-events: none;
+    }
+
+    .searchCount {
+      margin: 14px 0;
+      color: #cbd5e1;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+
+    #results {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      overflow: auto;
+      min-height: 0;
+      flex: 1;
+      padding-right: 10px;
+      scrollbar-gutter: stable;
+    }
+
+    #results li {
+      background: #0f172a;
+      border: 1px solid #374151;
+      margin-bottom: 8px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .countryLength {
+      color: #94a3b8;
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+
+    .litMatch {
+      color: #ffffff;
+      font-weight: 700;
+      text-shadow:
+        0 0 6px rgba(255, 255, 255, 0.45),
+        0 0 12px rgba(255, 255, 255, 0.18);
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 14px;
+      }
+
+      .box {
+        height: calc(100vh - 28px);
+        padding: 14px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      #searchInput {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <div class="tabs">
+      <button class="tabBtn active" onclick="switchTab('converterTab', this)">Classic Search</button>
+      <button class="tabBtn" onclick="switchTab('searchTab', this)">Speed Search</button>
+    </div>
+
+    <section id="converterTab" class="tabPanel active">
+      <h1>Classic Search</h1>
+      <p class="hint">Keeps one character as the pattern, optionally removes countries containing another character, keeps spaces, and sorts shortest to longest.</p>
+
+      <div class="controls">
+        <label for="keepChar">Keep:</label>
+        <input id="keepChar" maxlength="1" placeholder="A" value="" oninput="forceUppercase(this); convertCountries()" />
+
+        <label for="removeChar">Remove:</label>
+        <input id="removeChar" maxlength="1" placeholder="O" value="" oninput="forceUppercase(this); convertCountries()" />
+
+        <label for="lengthFilter">Length:</label>
+        <input id="lengthFilter" type="number" min="1" placeholder="7" oninput="convertCountries()" />
+
+        <div class="mergedToggle" aria-label="Hide filters">
+          <button id="toggleAllUnderscore" class="segmentBtn" onclick="toggleAllUnderscoreRows()">Hide blanks</button>
+          <button id="toggleSingleMatches" class="segmentBtn" onclick="toggleSingleMatchRows()">Hide singles</button>
+          <button id="toggleMultipleMatches" class="segmentBtn" onclick="toggleMultipleMatchRows()">Hide multiples</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="section">
+          <h2>No spaces (<span id="noSpacesCountryCount">0</span>)</h2>
+          <div class="output" id="noSpacesOutput">Loading.</div>
+        </div>
+
+        <div class="section">
+          <h2>With spaces (<span id="withSpacesCountryCount">0</span>)</h2>
+          <div class="output" id="withSpacesOutput">Loading.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="searchTab" class="tabPanel">
+      <div class="searchShell">
+        <div class="searchInner">
+          <h1>Speed Search</h1>
+          <p class="hint">Press Option / Alt / Control / Command to insert a wildcard "_".</p>
+
+          <div class="searchInputWrap">
+            <input id="searchInput" type="text" placeholder="Example: C____" autocomplete="off" />
+            <span id="charCount">0</span>
+          </div>
+
+          <div id="searchCount" class="searchCount"></div>
+          <ul id="results"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <script>
+    const countries = [
+      "CHAD", "CUBA", "FIJI", "IRAN", "IRAQ", "LAOS", "MALI", "OMAN", "PERU", "TOGO",
+      "BENIN", "CHILE", "MALTA", "CHINA", "CONGO", "EGYPT", "GABON", "GHANA", "HAITI", "INDIA",
+      "ITALY", "JAPAN", "KENYA", "LIBYA", "NAURU", "NEPAL", "NIGER", "PALAU", "QATAR", "SAMOA",
+      "SPAIN", "SUDAN", "SYRIA", "TONGA", "YEMEN", "ANGOLA", "BELIZE", "BHUTAN", "BOSNIA", "BRAZIL",
+      "BRUNEI", "CANADA", "CYPRUS", "FRANCE", "GAMBIA", "GREECE", "GUINEA", "GUYANA", "ISRAEL", "JORDAN",
+      "KOSOVO", "KUWAIT", "LATVIA", "MALAWI", "MEXICO", "MONACO", "NORWAY", "PANAMA", "POLAND", "RUSSIA",
+      "RWANDA", "SERBIA", "SWEDEN", "TAIWAN", "TURKEY", "TUVALU", "UGANDA", "ZAMBIA", "ALBANIA", "ALGERIA",
+      "ANDORRA", "ANTIGUA", "ARMENIA", "AUSTRIA", "BAHAMAS", "BAHRAIN", "BELARUS", "BELGIUM", "BOLIVIA", "BURUNDI",
+      "COMOROS", "CROATIA", "DENMARK", "ECUADOR", "ERITREA", "ESTONIA", "FINLAND", "GEORGIA", "GERMANY", "GRENADA",
+      "HUNGARY", "ICELAND", "IRELAND", "JAMAICA", "LEBANON", "LESOTHO", "LIBERIA", "MOLDOVA", "MOROCCO", "MYANMAR",
+      "NAMIBIA", "NIGERIA", "ROMANIA", "SENEGAL", "SOMALIA", "TUNISIA", "UKRAINE", "URUGUAY", "VANUATU", "VIETNAM",
+      "BARBADOS", "BOTSWANA", "BULGARIA", "CAMBODIA", "CAMEROON", "COLOMBIA", "DJIBOUTI", "DOMINICA", "ESWATINI", "ETHIOPIA",
+      "HONDURAS", "KIRIBATI", "MALAYSIA", "MALDIVES", "MONGOLIA", "PAKISTAN", "PARAGUAY", "PORTUGAL", "SLOVAKIA", "SLOVENIA",
+      "SURINAME", "TANZANIA", "THAILAND", "ZIMBABWE", "ARGENTINA", "PALESTINE", "AUSTRALIA", "GUATEMALA", "INDONESIA", "LITHUANIA",
+      "MAURITIUS", "NICARAGUA", "SINGAPORE", "SRI LANKA", "VENEZUELA", "AZERBAIJAN", "BANGLADESH", "CABO VERDE", "CAPE VERDE", "COSTA RICA",
+      "KAZAKHSTAN", "KYRGYZSTAN", "LUXEMBOURG", "MADAGASCAR", "MAURITANIA", "MICRONESIA", "MONTENEGRO", "MOZAMBIQUE", "SAN MARINO", "SEYCHELLES",
+      "TAJIKISTAN", "UZBEKISTAN", "AFGHANISTAN", "EL SALVADOR", "IVORY COAST", "NETHERLANDS", "NEW ZEALAND", "NORTH KOREA", "PHILIPPINES", "SAINT LUCIA",
+      "SOUTH KOREA", "SOUTH SUDAN", "SWITZERLAND", "BURKINA FASO", "SAUDI ARABIA", "SIERRA LEONE", "SOUTH AFRICA", "TURKMENISTAN", "VATICAN CITY", "LIECHTENSTEIN",
+      "UNITED STATES", "CZECH REPUBLIC", "UNITED KINGDOM", "NORTH MACEDONIA", "SOLOMON ISLANDS", "MARSHALL ISLANDS", "PAPUA NEW GUINEA", "DOMINICAN REPUBLIC", "TRINIDAD AND TOBAGO", "UNITED ARAB EMIRATES"
+    ];
+
+    let showAllUnderscoreRows = true;
+    let showSingleMatchRows = true;
+    let showMultipleMatchRows = true;
+
+    function switchTab(tabId, button) {
+      document.querySelectorAll(".tabPanel").forEach(panel => panel.classList.remove("active"));
+      document.querySelectorAll(".tabBtn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      button.classList.add("active");
+    }
+
+    function forceUppercase(input) {
+      input.value = input.value.toUpperCase();
+    }
+
+    function escapeHTML(text) {
+      return text
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function convertName(name, keepChar) {
+      const target = keepChar.toLowerCase();
+
+      return name
+        .split("")
+        .map(char => {
+          if (char === " ") return " ";
+          if (target && char.toLowerCase() === target) return char;
+          return "_";
+        })
+        .join("");
+    }
+
+    function isOnlyUnderscoresAndSpaces(text) {
+      return /^[ _]*$/.test(text);
+    }
+
+    function patternInfo(pattern) {
+      const positions = [];
+
+      for (let i = 0; i < pattern.length; i++) {
+        if (pattern[i] !== "_" && pattern[i] !== " ") {
+          positions.push(i);
+        }
+      }
+
+      return {
+        length: pattern.length,
+        first: positions.length ? positions[0] : Infinity,
+        amount: positions.length,
+        positions
+      };
+    }
+
+    function comparePatterns(patternA, patternB) {
+      const a = patternInfo(patternA);
+      const b = patternInfo(patternB);
+
+      if (a.length !== b.length) return a.length - b.length;
+      if (a.first !== b.first) return a.first - b.first;
+      if (a.amount !== b.amount) return a.amount - b.amount;
+
+      for (let i = 1; i < Math.max(a.positions.length, b.positions.length); i++) {
+        const posA = a.positions[i] ?? Infinity;
+        const posB = b.positions[i] ?? Infinity;
+        if (posA !== posB) return posA - posB;
+      }
+
+      return patternA.localeCompare(patternB);
+    }
+
+    function getCountColor(count) {
+      if (count > 13) return "#e5e7eb";
+
+      const min = 4;
+      const max = 13;
+      const clamped = Math.max(min, Math.min(max, count));
+      const percent = (clamped - min) / (max - min);
+      const hue = 120 - (120 * percent);
+
+      return `hsl(${hue}, 85%, 55%)`;
+    }
+
+    function getMatchColor(count) {
+      const min = 1;
+      const max = 6;
+      const clamped = Math.max(min, Math.min(max, count));
+      const percent = (clamped - min) / (max - min);
+      const hue = 120 - (120 * percent);
+
+      return `hsl(${hue}, 85%, 55%)`;
+    }
+
+    function formatRows(list, keepChar, removeChar, lengthFilter) {
+      const groups = new Map();
+
+      list.forEach(country => {
+        if (lengthFilter && country.length !== lengthFilter) return;
+        if (removeChar && country.toLowerCase().includes(removeChar.toLowerCase())) return;
+
+        const pattern = convertName(country, keepChar);
+
+        if (!showAllUnderscoreRows && isOnlyUnderscoresAndSpaces(pattern)) return;
+
+        if (!groups.has(pattern)) groups.set(pattern, []);
+        groups.get(pattern).push(country);
+      });
+
+      const visibleGroups = [...groups.entries()]
+        .filter(([, matches]) => showSingleMatchRows || matches.length !== 1)
+        .filter(([, matches]) => showMultipleMatchRows || matches.length <= 1);
+
+      const rows = visibleGroups
+        .sort((a, b) => comparePatterns(a[0], b[0]))
+        .map(([pattern, matches], index) => {
+          matches.sort((a, b) => a.localeCompare(b));
+
+          const safePattern = escapeHTML(pattern);
+          const matchList = matches
+            .map(country => `<div class="matchItem">${escapeHTML(country)}</div>`)
+            .join("");
+
+          const keepId = keepChar ? keepChar.charCodeAt(0) : "blank";
+          const removeId = removeChar ? removeChar.charCodeAt(0) : "none";
+          const id = `group-${keepId}-${removeId}-${pattern.length}-${index}-${Math.random().toString(36).slice(2)}`;
+          const tooltipText = `${matches.length} ${matches.length === 1 ? "match" : "matches"}`;
+
+          return `
+            <div class="patternGroup">
+              <div class="patternHeader">
+                <button class="dropBtn" style="background: ${getMatchColor(matches.length)}" onmouseenter="showTooltip(event, '${tooltipText}')" onmousemove="moveTooltip(event)" onmouseleave="hideTooltip()" onclick="togglePatternGroup('${id}', this)">▸</button>
+                <span class="converted">${safePattern}</span>
+                <span class="countNum" style="color: ${getCountColor(pattern.length)}">${pattern.length}</span>
+              </div>
+              <div class="matches hidden" id="${id}">${matchList}</div>
+            </div>
+          `;
+        })
+        .join("");
+
+      return {
+        html: rows || "<div>No matching countries.</div>",
+        countryTotal: visibleGroups.reduce((sum, [, matches]) => sum + matches.length, 0)
+      };
+    }
+
+    function showTooltip(event, text) {
+      const tooltip = document.getElementById("tooltip");
+      tooltip.textContent = text;
+      tooltip.classList.add("visible");
+      moveTooltip(event);
+    }
+
+    function moveTooltip(event) {
+      const tooltip = document.getElementById("tooltip");
+      tooltip.style.left = `${event.clientX + 12}px`;
+      tooltip.style.top = `${event.clientY + 12}px`;
+    }
+
+    function hideTooltip() {
+      document.getElementById("tooltip").classList.remove("visible");
+    }
+
+    function togglePatternGroup(id, button) {
+      const matches = document.getElementById(id);
+      matches.classList.toggle("hidden");
+      button.textContent = matches.classList.contains("hidden") ? "▸" : "▾";
+    }
+
+    function toggleAllUnderscoreRows() {
+      showAllUnderscoreRows = !showAllUnderscoreRows;
+      document.getElementById("toggleAllUnderscore").classList.toggle("switchOn", !showAllUnderscoreRows);
+      convertCountries();
+    }
+
+    function toggleSingleMatchRows() {
+      showSingleMatchRows = !showSingleMatchRows;
+      document.getElementById("toggleSingleMatches").classList.toggle("switchOn", !showSingleMatchRows);
+      convertCountries();
+    }
+
+    function toggleMultipleMatchRows() {
+      showMultipleMatchRows = !showMultipleMatchRows;
+      document.getElementById("toggleMultipleMatches").classList.toggle("switchOn", !showMultipleMatchRows);
+      convertCountries();
+    }
+
+    function convertCountries() {
+      const keepChar = document.getElementById("keepChar").value;
+      const removeChar = document.getElementById("removeChar").value;
+      const lengthValue = document.getElementById("lengthFilter").value;
+      const lengthFilter = lengthValue ? Number(lengthValue) : null;
+
+      const noSpaces = countries.filter(country => !country.includes(" "));
+      const withSpaces = countries.filter(country => country.includes(" "));
+
+      const noSpacesResult = formatRows(noSpaces, keepChar, removeChar, lengthFilter);
+      const withSpacesResult = formatRows(withSpaces, keepChar, removeChar, lengthFilter);
+
+      document.getElementById("noSpacesOutput").innerHTML = noSpacesResult.html;
+      document.getElementById("withSpacesOutput").innerHTML = withSpacesResult.html;
+      document.getElementById("noSpacesCountryCount").textContent = noSpacesResult.countryTotal;
+      document.getElementById("withSpacesCountryCount").textContent = withSpacesResult.countryTotal;
+    }
+
+    const searchInput = document.getElementById("searchInput");
+    const results = document.getElementById("results");
+    const searchCount = document.getElementById("searchCount");
+    const charCount = document.getElementById("charCount");
+
+    function cleanInputPattern(pattern) {
+      return pattern.toLowerCase();
+    }
+
+    function matchesPattern(country, pattern) {
+      const cleanCountry = country.toLowerCase();
+      const cleanPattern = cleanInputPattern(pattern);
+
+      if (cleanPattern.length === 0) return true;
+
+      const usedLetters = new Set(
+        cleanPattern
+          .split("")
+          .filter(char => char !== "_" && char !== " " && /\p{L}/u.test(char))
+      );
+
+      const mustBeExactLength = cleanPattern.endsWith("_");
+
+      if (mustBeExactLength && cleanCountry.length !== cleanPattern.length) return false;
+      if (!mustBeExactLength && cleanPattern.length > cleanCountry.length) return false;
+
+      for (let i = 0; i < cleanPattern.length; i++) {
+        const patternChar = cleanPattern[i];
+        const countryChar = cleanCountry[i];
+
+        if (patternChar === "_") {
+          const countryCharIsLetter = /\p{L}/u.test(countryChar);
+          if (!countryCharIsLetter || usedLetters.has(countryChar)) return false;
+          continue;
+        }
+
+        if (patternChar !== countryChar) return false;
+      }
+
+      return true;
+    }
+
+    function buildHighlightedCountry(country, pattern) {
+      const cleanPattern = cleanInputPattern(pattern);
+
+      if (!cleanPattern.length) return escapeHTML(country);
+
+      let html = "";
+
+      for (let i = 0; i < country.length; i++) {
+        const countryChar = country[i];
+        const patternChar = cleanPattern[i];
+
+        if (
+          patternChar &&
+          patternChar !== "_" &&
+          patternChar !== " " &&
+          patternChar === countryChar.toLowerCase()
+        ) {
+          html += `<span class="litMatch">${escapeHTML(countryChar)}</span>`;
+        } else {
+          html += escapeHTML(countryChar);
+        }
+      }
+
+      return html;
+    }
+
+    function renderSearchResults() {
+      searchInput.value = searchInput.value.toUpperCase();
+      const pattern = searchInput.value;
+      const cleanPattern = cleanInputPattern(pattern);
+
+      charCount.textContent = cleanPattern.length;
+
+      const matchedCountries = countries.filter(country => matchesPattern(country, pattern));
+
+      searchCount.textContent = `${matchedCountries.length} match${matchedCountries.length === 1 ? "" : "es"}`;
+      results.innerHTML = "";
+
+      matchedCountries.forEach(country => {
+        const li = document.createElement("li");
+
+        const countryName = document.createElement("span");
+        countryName.innerHTML = buildHighlightedCountry(country, pattern);
+
+        const countryLength = document.createElement("span");
+        countryLength.textContent = country.length;
+        countryLength.className = "countryLength";
+
+        li.appendChild(countryName);
+        li.appendChild(countryLength);
+        results.appendChild(li);
+      });
+    }
+
+    function insertWildcard() {
+      const start = searchInput.selectionStart;
+      const end = searchInput.selectionEnd;
+      const value = searchInput.value;
+
+      searchInput.value = value.slice(0, start) + "_" + value.slice(end);
+      const newCursorPosition = start + 1;
+      searchInput.setSelectionRange(newCursorPosition, newCursorPosition);
+      renderSearchResults();
+    }
+
+    searchInput.addEventListener("keydown", function(event) {
+      if ((event.key === "Alt" || event.key === "Control" || event.key === "Meta") && !event.repeat) {
+        event.preventDefault();
+        insertWildcard();
+      }
+    });
+
+    searchInput.addEventListener("input", renderSearchResults);
+
+    convertCountries();
+    renderSearchResults();
+  </script>
+</body>
+</html>
